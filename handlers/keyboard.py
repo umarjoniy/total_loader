@@ -1,3 +1,5 @@
+import os
+
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from aiogram.dispatcher.filters import Text
@@ -6,54 +8,39 @@ from pytube import YouTube
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from create_bot import dp, bot, admins
-import from_yt_download
+import send_from_user
 from aiogram.types.input_file import InputFile
-
-
 
 
 class FSMAdmin(StatesGroup):
     link = State()
 
 
+# def on_complete(info,path):
+#     os.remove(path)
+
+
 async def youtubee(message: types.Message, url):
     await FSMAdmin.link.set()
 
     yt = YouTube(url)
-    name= yt.streams.get_lowest_resolution().download()
-    print(name)
-    await from_yt_download.send_vf(name,message)
-
-
-async def youtube(message: types.Message):
-    await FSMAdmin.link.set()
-    # b = yt.streams.get_highest_resolution().get_url()
-    # = InputFile.from_url(
-    #    b,
-    #    filename="python-logoo.mp4"
-    # )
-    # f=open(image,'rb')
-    # print(image)
-    # await bot.send_document(message.from_user.id,image)
-    # msg=await client.send_file('@py_hack06',image,caption="5")
-    # print(msg)
-    #client.disconnect()
-    # await bot.send_document(message.from_user.id,msg)
-    # f.close()
+    name = yt.streams.get_highest_resolution().download()
+    await send_from_user.send_vf(name, message)
+    os.remove(name)
 
 
 async def load_link(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['link'] = message.text
-        tot_url = message.text
         await youtubee(message, message.text)
     # async with state.proxy() as data:
     # await message.reply(str(data))
     await state.finish()
 
 
-async def insta():
-    pass
+async def insta(message: types.Message):
+    await  bot.send_video(message.from_user.id,
+                          'BAACAgIAAxkBAAIDWmGrP4tqHYpkiU8TOVXKlStliAqtAALtEQACkwZYSYfZIS7Dz-h0IgQ')
 
 
 async def from_keyboard(message: types.Message):
