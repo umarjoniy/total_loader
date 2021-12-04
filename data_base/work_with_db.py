@@ -24,7 +24,6 @@ def add_user(id, name):
     except psycopg2.Error as e:
         print(e)
 
-
 def check_id(id):
     try:
         cur.execute(f"SELECT id FROM users WHERE id={id}")
@@ -33,3 +32,20 @@ def check_id(id):
         return 'No'
     except psycopg2.Error as e:
         print(e)
+
+def youtube_videos(video_name,quality,file_size,fps,file_id):
+    try:
+        cur.execute(r'INSERT INTO youtube_videos(video_name,quality,file_size,fps,file_id) VALUES (%s,%s,%s,%s,%s)', (video_name,quality,file_size,fps,file_id))
+        base.commit()
+    except psycopg2.Error as e:
+        print(e)
+
+def check_youtube_video(video_name,quality,fps):
+    try:
+        cur.execute(f"SELECT file_id FROM youtube_videos WHERE video_name='{video_name}' AND quality='{quality}' AND fps='{fps}'")
+        for i in cur:
+            return i
+        return 0
+    except psycopg2.Error as e:
+        print(e)
+

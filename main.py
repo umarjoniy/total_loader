@@ -1,6 +1,6 @@
 from aiogram.utils import executor
 from create_bot import dp
-from data_base import work_wirth_db
+from data_base import work_with_db
 from create_bot import bot
 from create_bot import admins
 

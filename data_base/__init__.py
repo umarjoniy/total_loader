@@ -1,1 +1,1 @@
-from data_base import work_wirth_db
+from data_base import work_with_db

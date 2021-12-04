@@ -1,7 +1,7 @@
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from keyboards import kb_client
-from data_base.work_wirth_db import check_id, add_user
+from data_base import work_with_db
 from aiogram.types import ReplyKeyboardRemove, ContentType
 
 
@@ -10,15 +10,14 @@ async def commands_start(message: types.Message):
     try:
         await bot.send_message(message.from_user.id, 'Вас приветствует бот для скачивания всего!',
                                reply_markup=kb_client)
-        a = check_id(message.from_user.id)
+        a = work_with_db.check_id(message.from_user.id)
         if a == 'Yes':
             pass
         elif a == 'No':
-            add_user(message.from_user.id, message.from_user.username)
+            work_with_db.add_user(message.from_user.id, message.from_user.username)
 
     except Exception as e:
         print(e)
-
         await  message.reply("Общение с ботом ток в ЛС!")
 
 
@@ -32,11 +31,12 @@ async def pizza_place_command(message: types.Message):
 
 
 async def get_file(message: types.Message):
-    print('-------------0----------------')
-    print(message)
-    print('______________1___________________-')
-    temp = await bot.forward_message(int(message.caption), message.from_user.id, message.message_id)
-    print(temp)
+    x=message.caption.split('#')
+    print(x)
+    await bot.send_video(int(x[0]),message.video.file_id,caption=x[3])
+    work_with_db.youtube_videos(x[3],x[2],x[1],x[4],message.video.file_id)
+
+
 
 
 def register_handlers_client(dp: Dispatcher):

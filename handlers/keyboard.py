@@ -1,15 +1,15 @@
 import os
-
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
 from aiogram.dispatcher.filters import Text
 from aiogram.types import ReplyKeyboardRemove
+from data_base import work_with_db
 from pytube import YouTube
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from create_bot import dp, bot, admins
 import send_from_user
-from aiogram.types.input_file import InputFile
+
 
 
 class FSMAdmin(StatesGroup):
@@ -21,12 +21,28 @@ class FSMAdmin(StatesGroup):
 
 
 async def youtubee(message: types.Message, url):
-    await FSMAdmin.link.set()
-
     yt = YouTube(url)
-    name = yt.streams.get_highest_resolution().download()
-    await send_from_user.send_vf(name, message)
-    os.remove(name)
+    size = str(yt.streams.get_highest_resolution().filesize)
+    quality=yt.streams.get_highest_resolution().resolution
+    video_name=yt.streams.get_highest_resolution().title
+    fps=str(yt.streams.get_highest_resolution().fps)
+    print(size,quality,video_name,fps)
+    path=None
+
+    if (int(size)/1024/1024) <370:
+        file_id=work_with_db.check_youtube_video(video_name,quality,fps)
+        print(file_id)
+        if str(file_id)=='0':
+            path = yt.streams.get_highest_resolution().download()
+            await send_from_user.send_vf(path, message,size,quality,video_name,fps)
+            #os.remove(path)
+        else:
+            await bot.send_video(message.from_user.id,file_id[0],caption=video_name)
+            #os.remove(path)
+
+
+    else:
+        await bot.send_message(message.from_user.id,'Размер видео больше чем 370МБ(техническое ограничение)')
 
 
 async def load_link(message: types.Message, state: FSMContext):
@@ -39,15 +55,13 @@ async def load_link(message: types.Message, state: FSMContext):
 
 
 async def insta(message: types.Message):
-    await  bot.send_video(message.from_user.id,
-                          'BAACAgIAAxkBAAIDWmGrP4tqHYpkiU8TOVXKlStliAqtAALtEQACkwZYSYfZIS7Dz-h0IgQ')
+    pass
 
 
 async def from_keyboard(message: types.Message):
     if message.text == ("Youtube"):
-        await bot.send_message(message.from_user.id, "Скачать с Youtube")  # reply_markup=ReplyKeyboardRemove()
+        await bot.send_message(message.from_user.id, "Введите ссылку на одно видео(ничего кроме видео)")  # reply_markup=ReplyKeyboardRemove()
         await FSMAdmin.link.set()
-        # bot.send_video(message.from_user.id,'https://r360102.kujo-jotaro.com/naruto/3/78.480.687f820dd24995f0.mp4?hash1=06bec7baeadd70d2e48bf6838842832d')
     elif message.text == ("Instagram"):
         pass
 

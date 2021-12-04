@@ -16,8 +16,9 @@ if not client.is_user_authorized():
 client.start()
 
 
-async def send_vf(name, message):
+async def send_vf(path, message,size,quality,video_name,fps):
     mimetypes.add_type('video/mp4', '.mp4')
-    file = await client.send_file('@Total_load_bot', name, caption=str(message.from_user.id))
-    print('-------01-----------')
-    print(file)
+    await client.send_file('@Total_load_bot', path,
+                           caption=str('#'.join([str(message.from_user.id), size, quality, video_name, fps])))
+    #print(str('#'.join([str(message.from_user.id),str(size),quality,video_name,str(fps)])))
+    #await client.send_file('@Tot_load_test_bot', path, caption=str('#'.join([str(message.from_user.id),size,quality,video_name,fps])))
