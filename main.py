@@ -50,7 +50,6 @@ keyboard.register_handlers_keyboard(dp)
 other.register_handlers_other(dp)
 
 if __name__ == '__main__':
-    await bot.delete_webhook()
     server.run(host='0.0.0.0',port=os.environ.get("PORT",5000))
     start_webhook(
         dispatcher=dp,
