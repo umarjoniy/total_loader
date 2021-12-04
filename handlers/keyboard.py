@@ -35,10 +35,10 @@ async def youtubee(message: types.Message, url):
         if str(file_id)=='0':
             path = yt.streams.get_highest_resolution().download()
             await send_from_user.send_vf(path, message,size,quality,video_name,fps)
-            #os.remove(path)
+            os.remove(path)
         else:
             await bot.send_video(message.from_user.id,file_id[0],caption=video_name)
-            #os.remove(path)
+            os.remove(path)
 
 
     else:
