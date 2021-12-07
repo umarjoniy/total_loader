@@ -1,21 +1,11 @@
-DB_URI = 'postgres://wylwtvjoxbqibu:14daa2435e9d6f550f7d5486151567dcd7981c45d50e747d0718c7667f9bb133@ec2-176-34-105-15.eu-west-1.compute.amazonaws.com:5432/d4j8c2trke9arp'
 import psycopg2
+
+from settings import logger
+
+DB_URI = 'postgres://yjvzcnbkhjgauw:4cbdb1a32494270689f52f36068c99141e2b759731afc055ad25dfed490cc94f@ec2-34-255-225-151.eu-west-1.compute.amazonaws.com:5432/dc31ouckk7qrit'
 
 base = psycopg2.connect(DB_URI)
 cur = base.cursor()
-
-
-# def sql_start():
-#     try:
-#         global base, cur
-#         base=sq.connect('base_cool.db')
-#         cur=base.cursor()
-#         if base:
-#             print('Data base connected OK!')
-#         base.execute('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT)')
-#         base.commit()
-#     except sq.Error as e:
-#         print(e)
 
 def add_user(id, name):
     try:
@@ -24,6 +14,7 @@ def add_user(id, name):
     except psycopg2.Error as e:
         print(e)
 
+
 def check_id(id):
     try:
         cur.execute(f"SELECT id FROM users WHERE id={id}")
@@ -31,21 +22,36 @@ def check_id(id):
             return 'Yes'
         return 'No'
     except psycopg2.Error as e:
-        print(e)
+        logger.error(e)
 
-def youtube_videos(video_name,quality,file_size,fps,file_id):
+
+def youtube_videos(video_name, quality, file_size, fps, file_id):
     try:
-        cur.execute(r'INSERT INTO youtube_videos(video_name,quality,file_size,fps,file_id) VALUES (%s,%s,%s,%s,%s)', (video_name,quality,file_size,fps,file_id))
+        cur.execute(r'INSERT INTO youtube_videos(video_name,quality,file_size,fps,file_id) VALUES (%s,%s,%s,%s,%s)',
+                    (video_name, quality, file_size, fps, file_id))
         base.commit()
     except psycopg2.Error as e:
-        print(e)
+        logger.error(e)
 
-def check_youtube_video(video_name,quality,fps):
+def youtube_videos_delete(video_name,quality,fps):
     try:
-        cur.execute(f"SELECT file_id FROM youtube_videos WHERE video_name='{video_name}' AND quality='{quality}' AND fps='{fps}'")
+        cur.execute('DELETE FROM youtube_videos WHERE (video_name=%s AND quality=%s AND fps=%s)',
+                    (video_name, quality, fps))
+        base.commit()
+    except psycopg2.Error as e:
+        logger.error(e)
+
+
+
+@logger.catch()
+def check_youtube_video(video_name, quality, fps):
+    try:
+        # когда в имени есть ' или " появляется ошибка!!!
+        cur.execute("SELECT file_id FROM youtube_videos WHERE (video_name=%s AND quality=%s AND fps=%s)",
+                    (video_name, quality, fps))
         for i in cur:
             return i
         return 0
     except psycopg2.Error as e:
-        print(e)
-
+        logger.error(e)
+        return 'Error'

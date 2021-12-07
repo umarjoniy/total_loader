@@ -1,7 +1,6 @@
 import mimetypes
-
+from settings import work_mode
 from telethon import TelegramClient
-from pytube import YouTube
 
 entity = 'video_helper'  # имя сессии - все равно какое
 api_id = 13039879
@@ -16,9 +15,10 @@ if not client.is_user_authorized():
 client.start()
 
 
-async def send_vf(path, message,size,quality,video_name,fps):
+async def send_vf(path, message, size, quality, video_name, fps):
     mimetypes.add_type('video/mp4', '.mp4')
-    await client.send_file('@Total_load_bot', path,
-                           caption=str('#'.join([str(message.from_user.id), size, quality, video_name, fps])))
-    #print(str('#'.join([str(message.from_user.id),str(size),quality,video_name,str(fps)])))
-    #await client.send_file('@Tot_load_test_bot', path, caption=str('#'.join([str(message.from_user.id),size,quality,video_name,fps])))
+    if work_mode == "SERVER":
+        await client.send_file('@Total_load_bot', path,
+                               caption=str('#'.join([str(message.from_user.id), size, quality, video_name, fps])))
+    elif work_mode=="DEBUG":
+        await client.send_file('@Tot_load_test_bot', path, caption=str('#'.join([str(message.from_user.id),size,quality,video_name,fps])))

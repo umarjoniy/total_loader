@@ -2,5 +2,5 @@ aiogram~=2.16
 Telethon~=1.24.0
 Flask~=2.0.2
 pytube~=11.0.1
-youtube-dl~=2021.6.6
 psycopg2-binary~=2.9.2
+loguru~=0.5.3
