@@ -1,5 +1,5 @@
 from loguru import logger
-logger.add('debug.log', format="{time} {level} {message}", level='DEBUG', rotation='10MB', compression='zip',
+logger.add('debug.log', format="{time} {level} {message}", level='DEBUG', rotation='15MB', compression='zip',
            serialize=True)
 
 admins=[413431533]

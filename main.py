@@ -12,10 +12,10 @@ async def on_startup(_):
         await bot.send_message(ids, "Бот запустился",reply_markup=kb_client)
 
 
-from handlers import client, other, keyboard
+from handlers import client, other, keyboard, admin
 
 client.register_handlers_client(dp)
-#admin.register_handlers_admin(dp)
+admin.register_handlers_admin(dp)
 keyboard.register_handlers_keyboard(dp)
 other.register_handlers_other(dp)
 

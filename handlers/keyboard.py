@@ -26,6 +26,8 @@ async def youtube(message: types.Message, url):
     except pytube.exceptions.RegexMatchError:
         return 'Not exist'
     # Когда мы получаем не ссылку в Ютуб- вылетает ошибка
+    #Реализовать команду get_log для админов
+    #добавить логи на то, что кто отправлял
     size = str(yt.streams.get_highest_resolution().filesize)
     quality = yt.streams.get_highest_resolution().resolution
     video_name = yt.streams.get_highest_resolution().title
@@ -38,6 +40,7 @@ async def youtube(message: types.Message, url):
         if str(file_id) == '0':
             logger.debug("Downloading youtube video")
             path = yt.streams.get_highest_resolution().download()
+            logger.debug("Downloaded!")
             await send_from_user.send_vf(path, message, size, quality, video_name, fps)
             os.remove(path)
         elif str(file_id) == "Error":
