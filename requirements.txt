@@ -4,3 +4,4 @@ Flask~=2.0.2
 pytube~=11.0.1
 psycopg2-binary~=2.9.2
 loguru~=0.5.3
+speedtest-cli~=2.1.3
