@@ -7,7 +7,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from pytube import YouTube
-from settings import logger
+from settings import logger, download_speed, upload_speed
 import keyboards
 import send_from_user
 from create_bot import bot
@@ -18,7 +18,6 @@ from data_base import work_with_db
 class FSMAdmin(StatesGroup):
     link = State()
 
-#aiogram.utils.exceptions.WrongFileIdentifier
 @logger.catch
 async def youtube(message: types.Message, url):
     try:
@@ -39,9 +38,13 @@ async def youtube(message: types.Message, url):
         logger.debug(f"File id: {file_id}")
         if str(file_id) == '0':
             logger.debug("Downloading youtube video")
+            a = await bot.send_message(message.from_user.id,"Видео скачивается на сервер...")
+            print(a.message_id)
             path = yt.streams.get_highest_resolution().download()
+            await bot.edit_message_text(f"Видео отпправляется.\nОжидайте примерно {int(int(int(int(size)/1024/1024)/upload_speed)/60+1)} минут(у)",message.from_user.id,a.message_id)
             logger.debug("Downloaded!")
             await send_from_user.send_vf(path, message, size, quality, video_name, fps)
+            await bot.delete_message(message.from_user.id,a.message_id)
             os.remove(path)
         elif str(file_id) == "Error":
             await bot.send_message(message.from_user.id, 'Произошла ошибка!')
@@ -55,6 +58,7 @@ async def youtube(message: types.Message, url):
                 await youtube(message,url)
     else:
         await bot.send_message(message.from_user.id, 'Размер видео больше чем 370МБ(техническое ограничение)')
+        return "not Found"
 
 
 # Я думаю, нам не нужна эта функция!
@@ -63,7 +67,10 @@ async def load_link(message: types.Message, state: FSMContext):
     if a == 'Not exist':
         await  bot.send_message(message.from_user.id, "Отправленное видео не найдено либо не доступно(")
         del a
-    await state.finish()
+    elif a=="not Found":
+        pass
+    else:
+        await state.finish()
 
 
 # переписать логику

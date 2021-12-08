@@ -1,9 +1,8 @@
 import os
-
+from speedtest import Speedtest
 from aiogram import types, Dispatcher
 
-from settings import admins
-from settings import logger
+from settings import admins , logger , download_speed , upload_speed
 
 
 # class FSMAdmin(StatesGroup):
@@ -13,12 +12,21 @@ from settings import logger
 #     # price=State()
 
 async def get_log(message:types.Message):
+    print(message.text)
     if message.from_user.id in admins:
         logger.debug(f"Getting command {message.text} from user {message.from_user.id})")
         for i in os.listdir():
             logger.debug(f"File: {i}")
         with open('debug.log','rb') as f:
             await message.reply_document(f)
+
+async def get_speed(message:types.Message):
+    if message.from_user.id in admins:
+        logger.debug(f"Getting command {message.text} from user {message.from_user.id})")
+        network=Speedtest(secure=True)
+        download_speed=int(network.download()/1024/1024/8)
+        upload_speed=int(network.upload()/1024/1024/8)
+        await message.reply(f'Download: {download_speed}\nUpload: {upload_speed}')
 
 
 # # начало диалога загрузки нового пункта меню
@@ -75,6 +83,7 @@ async def get_log(message:types.Message):
 # Регестрируем хэндлеры
 def register_handlers_admin(dp: Dispatcher):
     dp.register_message_handler(get_log,commands=["get_log"],state=None)
+    dp.register_message_handler(get_speed,commands=["get_speed"],state=None)
     # dp.register_message_handler(cancel_handler, state="*", commands=['отмена'])
     # dp.register_message_handler(cancel_handler, Text(equals=['отмена'], ignore_case=True), state="*")
     # dp.register_message_handler(cm_start, commands=["Загрузить"], state=None)
