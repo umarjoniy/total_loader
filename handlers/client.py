@@ -3,14 +3,14 @@ from aiogram.types import ContentType
 
 from create_bot import bot
 from data_base import work_with_db
-from keyboards import kb_client
+from keyboards import client_kb
 from settings import video_get_accaunt, logger
 
 
 async def commands_start(message: types.Message):
     try:
         await bot.send_message(message.from_user.id, 'Вас приветствует бот для скачивания всего!\nБот находится на альфа-тесте',
-                               reply_markup=kb_client)
+                               reply_markup=client_kb.kb_client)
         a = work_with_db.check_id(message.from_user.id)
         if a == 'Yes':
             pass
@@ -27,7 +27,7 @@ async def get_file(message: types.Message):
     if message.from_user.id in video_get_accaunt:
         x = message.caption.split('#')
         logger.debug(f"Got datas:{x}")
-        await bot.send_video(int(x[0]), message.video.file_id, caption=x[3])
+        await bot.send_video(int(x[0]), message.video.file_id, caption=x[3],reply_markup=client_kb.kb_main_menu)
         work_with_db.youtube_videos(x[3], x[2], x[1], x[4], message.video.file_id)
 
 

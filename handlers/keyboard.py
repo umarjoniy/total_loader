@@ -8,7 +8,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from pytube import YouTube
 from settings import logger, download_speed, upload_speed
-import keyboards
+from keyboards import client_kb
 import send_from_user
 from create_bot import bot
 # from aiogram.types import ReplyKeyboardRemove
@@ -39,7 +39,6 @@ async def youtube(message: types.Message, url):
         if str(file_id) == '0':
             logger.debug("Downloading youtube video")
             a = await bot.send_message(message.from_user.id,"Видео скачивается на сервер...")
-            print(a.message_id)
             path = yt.streams.get_highest_resolution().download()
             await bot.edit_message_text(f"Видео отпправляется.\nОжидайте примерно {int(int(int(int(size)/1024/1024)/upload_speed)/60+1)} минут(у)",message.from_user.id,a.message_id)
             logger.debug("Downloaded!")
@@ -69,15 +68,13 @@ async def load_link(message: types.Message, state: FSMContext):
         del a
     elif a=="not Found":
         pass
-    else:
-        await state.finish()
 
 
 # переписать логику
 async def youtube_start(message: types.Message):
     # Долго чекает!
     await bot.send_message(message.from_user.id,
-                           "Введите ссылку на одно видео(ничего кроме видео)")  # reply_markup=ReplyKeyboardRemove()
+                           "Введите ссылку на одно видео(ничего кроме видео)",reply_markup=client_kb.kb_cancer)  # reply_markup=ReplyKeyboardRemove()
     await FSMAdmin.link.set()
 
 
@@ -94,12 +91,18 @@ async def twitter(message: types.Message):
 
 
 async def cancel_handler(message: types.Message, state: FSMContext):
-    await message.reply("Отменено", reply_markup=keyboards.kb_client)
+    await message.reply("Отменено", reply_markup=client_kb.kb_client)
+    await state.finish()
 
+async def main_menu_handler(message:types.Message,state:FSMContext):
+    await message.reply('Переход на главное меню.')
+    await state.finish()
 
 def register_handlers_keyboard(dp: Dispatcher):
     dp.register_message_handler(youtube_start, Text(equals=['Youtube'], ignore_case=True), state=None)
     dp.register_message_handler(instagram, Text(equals=['Instagram'], ignore_case=True), state=None)
     dp.register_message_handler(tik_tok, Text(equals=['TikTok'], ignore_case=True), state=None)
     dp.register_message_handler(twitter, Text(equals=['Twitter'], ignore_case=True), state=None)
+    dp.register_message_handler(cancel_handler,Text(equals=['Отмена'], ignore_case=True), state='*')
+    dp.register_message_handler(main_menu_handler,Text(equals=['Вернуться на главное меню'], ignore_case=True), state='*')
     dp.register_message_handler(load_link, state=FSMAdmin.link)

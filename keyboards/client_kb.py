@@ -13,4 +13,7 @@ kb_client.add(b3).insert(b4)
 
 kb_cancer=ReplyKeyboardMarkup(resize_keyboard=True,one_time_keyboard=True)
 kb_cancer.row('Отмена')
+
+kb_main_menu=ReplyKeyboardMarkup(resize_keyboard=True,one_time_keyboard=True)
+kb_main_menu.row('Вернуться на главное меню')
 # kb_client.row(b1)
