@@ -28,7 +28,7 @@ async def get_speed(message:types.Message):
         upload_speed=int(network.upload()/1024/1024/8)
         await message.reply(f'Download: {download_speed}\nUpload: {upload_speed}')
 
-def get_users(message:types.Message):
+async def get_users(message:types.Message):
     if message.from_user.id in admins:
         logger.debug(f"Getting command {message.text} from user {message.from_user.id})")
         a=get_users()
