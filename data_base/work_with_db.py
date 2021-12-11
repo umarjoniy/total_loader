@@ -41,6 +41,17 @@ def youtube_videos_delete(video_name,quality,fps):
     except psycopg2.Error as e:
         logger.error(e)
 
+def get_users():
+    try:
+        cur.execute('SELECT id FROM users')
+        total=''
+        for i in cur:
+            total=total+'i\n'
+        return total
+
+
+    except:
+        pass
 
 
 @logger.catch()

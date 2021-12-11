@@ -95,7 +95,7 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     await state.finish()
 
 async def main_menu_handler(message:types.Message,state:FSMContext):
-    await message.reply('Переход на главное меню.')
+    await message.reply('Переход на главное меню.',reply_markup=client_kb.kb_client)
     await state.finish()
 
 def register_handlers_keyboard(dp: Dispatcher):
