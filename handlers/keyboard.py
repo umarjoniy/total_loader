@@ -40,7 +40,7 @@ async def youtube(message: types.Message, url):
             logger.debug("Downloading youtube video")
             a = await bot.send_message(message.from_user.id,"Видео скачивается на сервер...")
             path = yt.streams.get_highest_resolution().download()
-            await bot.edit_message_text(f"Видео отпправляется.\nОжидайте примерно {int(int(int(int(size)/1024/1024)/upload_speed)/60+1)} минут(у)",message.from_user.id,a.message_id)
+            await bot.edit_message_text(f"Видео отпправляется.\nОжидайте",message.from_user.id,a.message_id)
             logger.debug("Downloaded!")
             await send_from_user.send_vf(path, message, size, quality, video_name, fps)
             await bot.delete_message(message.from_user.id,a.message_id)
@@ -98,11 +98,15 @@ async def main_menu_handler(message:types.Message,state:FSMContext):
     await message.reply('Переход на главное меню.',reply_markup=client_kb.kb_client)
     await state.finish()
 
+async def spotify(message:types.Message):
+    await bot.send_message(message.from_user.id, "Пока у этой кнопки нет мозгов...\nНо я постараюсь вправить их туда:)")
+
 def register_handlers_keyboard(dp: Dispatcher):
     dp.register_message_handler(youtube_start, Text(equals=['Youtube'], ignore_case=True), state=None)
     dp.register_message_handler(instagram, Text(equals=['Instagram'], ignore_case=True), state=None)
     dp.register_message_handler(tik_tok, Text(equals=['TikTok'], ignore_case=True), state=None)
     dp.register_message_handler(twitter, Text(equals=['Twitter'], ignore_case=True), state=None)
+    dp.register_message_handler(spotify, Text(equals=['Spotify'], ignore_case=True), state=None)
     dp.register_message_handler(cancel_handler,Text(equals=['Отмена'], ignore_case=True), state='*')
     dp.register_message_handler(main_menu_handler,Text(equals=['Вернуться на главное меню'], ignore_case=True), state='*')
     dp.register_message_handler(load_link, state=FSMAdmin.link)

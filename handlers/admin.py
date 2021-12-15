@@ -1,7 +1,7 @@
 import os
 from speedtest import Speedtest
 from aiogram import types, Dispatcher
-from data_base.work_with_db import *
+from data_base import work_with_db
 from settings import admins , logger , download_speed , upload_speed
 
 
@@ -31,8 +31,11 @@ async def get_speed(message:types.Message):
 async def get_users(message:types.Message):
     if message.from_user.id in admins:
         logger.debug(f"Getting command {message.text} from user {message.from_user.id})")
-        a=get_users()
-        await message.reply(a)
+        a=work_with_db.get_users()
+        if a!='Error':
+            await message.reply(a)
+        else:
+            await message.reply("Произошла ошибка")
 
 
 

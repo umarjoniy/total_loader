@@ -44,14 +44,12 @@ def youtube_videos_delete(video_name,quality,fps):
 def get_users():
     try:
         cur.execute('SELECT id FROM users')
-        total=''
-        for i in cur:
-            total=total+'i\n'
-        return total
+        a=cur.fetchall()
+        return a
 
-
-    except:
-        pass
+    except psycopg2.Error as e:
+        logger.error(e)
+        return 'Error'
 
 
 @logger.catch()
