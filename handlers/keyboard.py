@@ -7,14 +7,14 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from pytube import YouTube
-from settings import logger, download_speed, upload_speed
+from settings import logger ,download_speed, upload_speed
 from keyboards import client_kb
 import send_from_user
 from create_bot import bot
 # from aiogram.types import ReplyKeyboardRemove
-from data_base import work_with_db
+from data_base.work_with_db import *
 
-#надо до конца продолжить машину состояний(до скачивания видео и отправки)
+
 class FSMAdmin(StatesGroup):
     link = State()
 
@@ -22,6 +22,7 @@ class FSMAdmin(StatesGroup):
 async def youtube(message: types.Message, url):
     try:
         yt = YouTube(url)
+        logger.debug(url)
     except pytube.exceptions.RegexMatchError:
         return 'Not exist'
     # Когда мы получаем не ссылку в Ютуб- вылетает ошибка
@@ -34,7 +35,8 @@ async def youtube(message: types.Message, url):
     logger.debug(f"Size: {size}B({str(int(size)/1024/1024)}MB), quality: {quality}, videos name: {video_name}, fps: {str(fps)}")
 
     if (int(size) / 1024 / 1024) < 370:
-        file_id = work_with_db.check_youtube_video(video_name, quality, fps)
+        file_id = check_youtube_video(video_name, quality, fps)
+        logger.debug(file_id)
         logger.debug(f"File id: {file_id}")
         if str(file_id) == '0':
             logger.debug("Downloading youtube video")
@@ -53,7 +55,7 @@ async def youtube(message: types.Message, url):
 
             except aiogram.utils.exceptions.WrongFileIdentifier:
                 logger.info(f"File id {file_id[0]} is old?")
-                work_with_db.youtube_videos_delete(video_name,quality,fps)
+                youtube_videos_delete(video_name,quality,fps)
                 await youtube(message,url)
     else:
         await bot.send_message(message.from_user.id, 'Размер видео больше чем 370МБ(техническое ограничение)')

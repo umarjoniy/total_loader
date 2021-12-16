@@ -2,7 +2,7 @@ import os
 from speedtest import Speedtest
 from aiogram import types, Dispatcher
 from data_base import work_with_db
-from settings import admins , logger , download_speed , upload_speed
+from settings import admins , logger
 
 
 # class FSMAdmin(StatesGroup):
