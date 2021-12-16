@@ -1,6 +1,5 @@
 from loguru import logger
-logger.add('debug.log', format="{time} {level} {message}", level='DEBUG', rotation='15MB', compression='zip',
-           serialize=True)
+logger.add('debug.log', format="{time} {level} {message}", level='DEBUG', rotation='15MB', compression='zip')
 from speedtest import Speedtest
 network=Speedtest(secure=True)
 admins=[413431533]
