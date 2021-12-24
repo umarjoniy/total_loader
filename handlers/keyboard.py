@@ -1,22 +1,28 @@
 import os
 
 import aiogram
+import re
+import instaloader
+from aiogram.types import InputMediaVideo, InputMediaPhoto
+from instaloader import Post
 import pytube
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from pytube import YouTube
-from settings import logger ,download_speed, upload_speed
+import settings
 from keyboards import client_kb
 import send_from_user
 from create_bot import bot
 # from aiogram.types import ReplyKeyboardRemove
 from data_base.work_with_db import *
-
+ig = instaloader.Instaloader()
+ig.load_session_from_file('jackis153','413431533')
 
 class FSMAdmin(StatesGroup):
-    link = State()
+    yt_link = State()
+    in_link=State()
 
 @logger.catch
 async def youtube(message: types.Message, url):
@@ -25,9 +31,6 @@ async def youtube(message: types.Message, url):
         logger.debug(url)
     except pytube.exceptions.RegexMatchError:
         return 'Not exist'
-    # Когда мы получаем не ссылку в Ютуб- вылетает ошибка
-    #Реализовать команду get_log для админов
-    #добавить логи на то, что кто отправлял
     size = str(yt.streams.get_highest_resolution().filesize)
     quality = yt.streams.get_highest_resolution().resolution
     video_name = yt.streams.get_highest_resolution().title
@@ -63,7 +66,7 @@ async def youtube(message: types.Message, url):
 
 
 # Я думаю, нам не нужна эта функция!
-async def load_link(message: types.Message, state: FSMContext):
+async def load_yt_link(message: types.Message, state: FSMContext):
     a = await youtube(message, message.text)
     if a == 'Not exist':
         await  bot.send_message(message.from_user.id, "Отправленное видео не найдено либо не доступно(")
@@ -77,11 +80,47 @@ async def youtube_start(message: types.Message):
     # Долго чекает!
     await bot.send_message(message.from_user.id,
                            "Введите ссылку на одно видео(ничего кроме видео)",reply_markup=client_kb.kb_cancer)  # reply_markup=ReplyKeyboardRemove()
-    await FSMAdmin.link.set()
+    await FSMAdmin.yt_link.set()
+#добавить состояния типа отправляет печатает читает
+async def load_ig_link(message: types.Message, state: FSMContext):
+    match = re.search(r'/[\w-]{11}', message.text)
+    shortcode = match[0][1:len(match[0]) + 1]
+    post = Post.from_shortcode(ig.context, shortcode)
+    q = ig.download_post(post,str(message.from_user.id)+'i')
+    if q==True:
+        media = []
+        caption=''
+        path = str(message.from_user.id) + 'i/'
+        for i in os.listdir(str(message.from_user.id)+'i'):
+            if (path + i)[len(path+i)-3:] in ['txt']:
+                with open(path+i,'r') as f:
+                    caption=f.read()
+                    print(caption)
+                    #переделать логику
+            elif (path + i)[len(path+i)-3:] in ['png','jpg']:
+                print(path+i)
+                media.append(InputMediaPhoto(path+i,caption=caption))
+            elif (path + i)[len(path+i)-3:] in ['mp4']:
+                media.append(InputMediaVideo(path+i,caption=caption))
+        print(media)
+        await  bot.send_media_group(message.from_user.id,media)
+        os.remove(path)
+        await state.finish()
+    else:
+        print('False')
+        await state.finish()
 
 
-async def instagram(message: types.Message):
-    await bot.send_message(message.from_user.id, "Пока у этой кнопки нет мозгов...")
+
+
+
+async def instagram_start(message: types.Message):
+    ig = instaloader.Instaloader()
+    ig.load_session_from_file('jackis153',settings.instagram_auth_file_name)
+    await bot.send_message(message.from_user.id,"Введите ссылку на пост, который вы хотите скачать")
+    await FSMAdmin.in_link.set()
+    #post = Post.from_shortcode(ig.context, a)
+    #q = ig.download_post(post, 'name')
 
 
 async def tik_tok(message: types.Message):
@@ -105,10 +144,11 @@ async def spotify(message:types.Message):
 
 def register_handlers_keyboard(dp: Dispatcher):
     dp.register_message_handler(youtube_start, Text(equals=['Youtube'], ignore_case=True), state=None)
-    dp.register_message_handler(instagram, Text(equals=['Instagram'], ignore_case=True), state=None)
+    dp.register_message_handler(instagram_start, Text(equals=['Instagram'], ignore_case=True), state=None)
     dp.register_message_handler(tik_tok, Text(equals=['TikTok'], ignore_case=True), state=None)
     dp.register_message_handler(twitter, Text(equals=['Twitter'], ignore_case=True), state=None)
     dp.register_message_handler(spotify, Text(equals=['Spotify'], ignore_case=True), state=None)
     dp.register_message_handler(cancel_handler,Text(equals=['Отмена'], ignore_case=True), state='*')
     dp.register_message_handler(main_menu_handler,Text(equals=['Вернуться на главное меню'], ignore_case=True), state='*')
-    dp.register_message_handler(load_link, state=FSMAdmin.link)
+    dp.register_message_handler(load_yt_link, state=FSMAdmin.yt_link)
+    dp.register_message_handler(load_ig_link, state=FSMAdmin.in_link)
