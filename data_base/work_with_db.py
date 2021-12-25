@@ -2,7 +2,7 @@ import psycopg2
 
 from settings import logger
 
-DB_URI = 'postgres://yjvzcnbkhjgauw:4cbdb1a32494270689f52f36068c99141e2b759731afc055ad25dfed490cc94f@ec2-34-255-225-151.eu-west-1.compute.amazonaws.com:5432/dc31ouckk7qrit'
+DB_URI = 'postgres://ymarfelyurbxsh:9d775269db7a88955fba6f6fb415f19320b59fbdd03cb3d57faf35a82a65f5bb@ec2-52-215-22-82.eu-west-1.compute.amazonaws.com:5432/d56f3k6cmh5ips'
 
 base = psycopg2.connect(DB_URI)
 cur = base.cursor()

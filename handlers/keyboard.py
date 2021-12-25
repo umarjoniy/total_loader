@@ -115,10 +115,11 @@ async def load_ig_link(message: types.Message, state: FSMContext):
 
 
 async def instagram_start(message: types.Message):
-    ig = instaloader.Instaloader()
-    ig.load_session_from_file('jackis153',settings.instagram_auth_file_name)
-    await bot.send_message(message.from_user.id,"Введите ссылку на пост, который вы хотите скачать")
-    await FSMAdmin.in_link.set()
+    await bot.send_message(message.from_user.id,'Пока это не работает')
+    # ig = instaloader.Instaloader()
+    # ig.load_session_from_file('jackis153',settings.instagram_auth_file_name)
+    # await bot.send_message(message.from_user.id,"Введите ссылку на пост, который вы хотите скачать")
+    # await FSMAdmin.in_link.set()
     #post = Post.from_shortcode(ig.context, a)
     #q = ig.download_post(post, 'name')
 
