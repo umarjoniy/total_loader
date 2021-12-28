@@ -1,24 +1,32 @@
 import mimetypes
+from settings import server_accaunts, debug_accaunts
 from settings import work_mode
 from telethon import TelegramClient
+import os
 
-entity = 'video_helper'  # имя сессии - все равно какое
-api_id = 13039879
-api_hash = '21b5769695be114bde15f8f77e1d9344'
-phone = '+79680931979'
-client = TelegramClient(entity, api_id, api_hash)
+if work_mode == "SERVER":
+    client = TelegramClient(server_accaunts.get('entity'), server_accaunts.get('api_id'),
+                            server_accaunts.get('api_hash'))
+elif work_mode == 'DEBUG':
+    client = TelegramClient(debug_accaunts.get('entity'), debug_accaunts.get('api_id'),
+                            debug_accaunts.get('api_hash'))
 client.connect()
 if not client.is_user_authorized():
-    client.send_code_request(
-        phone)  # при первом запуске - раскомментить, после авторизации для избежания FloodWait советую закомментить
-    client.sign_in(phone, input('Enter code: '))
+    if work_mode == "SERVER":
+        client.send_code_request(server_accaunts.get('phone'))
+        client.sign_in(server_accaunts.get('phone'), input('Enter code: '))
+    elif work_mode == 'DEBUG':
+        client.send_code_request(debug_accaunts.get('phone'))
+        client.sign_in(debug_accaunts.get('phone'), input('Enter code: '))
 client.start()
 
 
-async def send_vf(path, message, size, quality, video_name, fps):
+async def send_vf(path, message, size, quality, video_name, fps,type):
     mimetypes.add_type('video/mp4', '.mp4')
     if work_mode == "SERVER":
+
         await client.send_file('@Total_load_bot', path,
+                               caption=str('#'.join([str(message.from_user.id), size, quality, video_name, fps,type])))
+    elif work_mode == "DEBUG":
+        await client.send_file('@Tot_load_test_bot', path,voice_note=True,
                                caption=str('#'.join([str(message.from_user.id), size, quality, video_name, fps])))
-    elif work_mode=="DEBUG":
-        await client.send_file('@Tot_load_test_bot', path, caption=str('#'.join([str(message.from_user.id),size,quality,video_name,fps])))
