@@ -1,5 +1,7 @@
 import os
 import re
+from settings import logger
+import settings
 from settings import FSMAdmin
 import instaloader
 import downloaders
@@ -27,29 +29,6 @@ async def yt_format(message: types.Message, state: FSMContext):
         await bot.send_message(message.from_user.id,"Введите ссылку",reply_markup=client_kb.kb_cancer)
     else:
         await bot.send_message(message.from_user.id,"Выберите правильный формат",reply_markup=client_kb.kb_youtube)
-    # a=None
-    # state=None
-    # try:
-    #     a = pytube.Playlist(message.text)
-    #     state="Playlist"
-    #     await downloaders.youtube.youtube_playlist(message, a, state)
-    # except:
-    #     try:
-    #         a = pytube.YouTube(message.text)
-    #         state="Video"
-    #         await downloaders.youtube.youtube_video(message, a, state)
-    #     except:
-    #         await bot.send_message(message.from_user.id,"Плэй-лист либо видео не найдено(")
-
-
-
-    #
-    # if a == 'Not exist':
-    #     await  bot.send_message(message.from_user.id, "Отправленное видео не найдено либо не доступно(")
-    #     del a
-    # elif a=="not Found":
-    #     pass
-
 
 # переписать логику
 async def youtube_start(message: types.Message):
@@ -60,29 +39,43 @@ async def youtube_start(message: types.Message):
     #                        "Введите ссылку на одно видео(ничего кроме видео)",reply_markup=client_kb.kb_cancer)  # reply_markup=ReplyKeyboardRemove()
     # await FSMAdmin.yt_link.set()
 #добавить состояния типа отправляет печатает читает
+@logger.catch()
 async def load_ig_link(message: types.Message, state: FSMContext):
     match = re.search(r'/[\w-]{11}', message.text)
     shortcode = match[0][1:len(match[0]) + 1]
     post = Post.from_shortcode(ig.context, shortcode)
-    q = ig.download_post(post,str(message.from_user.id)+'i')
+    q = ig.download_post(post,str(message.from_user.id)+'_instagram')
     if q==True:
         media = []
+        ies=[]
         caption=''
-        path = str(message.from_user.id) + 'i/'
-        for i in os.listdir(str(message.from_user.id)+'i'):
-            if (path + i)[len(path+i)-3:] in ['txt']:
+        path = str(message.from_user.id) + '_instagram/'
+        for i in os.listdir(path):
+            root,ext=os.path.splitext(path+i)
+            if ext in ['.txt']:
                 with open(path+i,'r') as f:
                     caption=f.read()
                     print(caption)
                     #переделать логику
-            elif (path + i)[len(path+i)-3:] in ['png','jpg']:
+            elif ext in ['.png','.jpg']:
                 print(path+i)
-                media.append(InputMediaPhoto(path+i,caption=caption))
-            elif (path + i)[len(path+i)-3:] in ['mp4']:
-                media.append(InputMediaVideo(path+i,caption=caption))
+                file=open(path+i,'rb')
+                ies.append(file)
+                media.append(InputMediaPhoto(file,caption=caption))
+            elif (path + i)[len(path+i)-3:] in ['.mp4']:
+                file=open(path + i, 'rb')
+                ies.append(file)
+                media.append(InputMediaVideo(file,caption=caption))
         print(media)
+        for i in media:
+            i.caption=caption
+            #один caption на всех
         await  bot.send_media_group(message.from_user.id,media)
-        os.remove(path)
+        for qq in ies:
+            qq.close()
+        for i in os.listdir(path):
+            os.remove(path+i)
+        os.rmdir(path)
         await state.finish()
     else:
         print('False')
@@ -106,11 +99,11 @@ async def yt_url(message:types.Message,state:FSMContext):
 
 
 async def instagram_start(message: types.Message):
-    await bot.send_message(message.from_user.id,'Пока это не работает')
-    # ig = instaloader.Instaloader()
-    # ig.load_session_from_file('jackis153',settings.instagram_auth_file_name)
-    # await bot.send_message(message.from_user.id,"Введите ссылку на пост, который вы хотите скачать")
-    # await FSMAdmin.in_link.set()
+    #await bot.send_message(message.from_user.id,'Пока это не работает')
+    ig = instaloader.Instaloader()
+    ig.load_session_from_file('jackis153',settings.instagram_auth_file_name)
+    await bot.send_message(message.from_user.id,"Введите ссылку на пост, который вы хотите скачать")
+    await FSMAdmin.in_link.set()
     #post = Post.from_shortcode(ig.context, a)
     #q = ig.download_post(post, 'name')
 
