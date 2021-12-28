@@ -38,14 +38,19 @@ class Youtube:
         logger.debug(self.first_link)
         yt=YouTube(self.first_link)
         if self.video_type=="Аудио":
-            video=yt.streams.get_lowest_resolution()
+            video=yt.streams.get_audio_only('mp4')
         elif self.video_type=="Видео":
             video=yt.streams.get_highest_resolution()
 
         self.size = video.filesize
         self.quality = video.resolution
         self.video_name = video.title
-        self.fps = str(video.fps)
+        try:
+            self.fps = str(video.fps)
+        except AttributeError:
+            self.fps='None'
+        if self.quality==None:
+            self.quality='None'
         logger.debug(f"Size: {str(self.size)}B({str(int(self.size)/1024/1024)}MB), quality: {self.quality}, videos name: {self.video_name}, fps: {str(self.fps)}")
 
         if (int(self.size) / 1024 / 1024) < 370:
@@ -56,14 +61,17 @@ class Youtube:
                 logger.debug("Downloading youtube video")
                 a = await bot.send_message(self.message.from_user.id,"Видео(аудио) скачивается на сервер...")
                 path = video.download()
-                clip = mp.VideoFileClip(path)
-                clip.audio.write_audiofile("theaudio.mp3")
+                logger.debug(self.video_type)
+                if self.video_type=="Аудио":
+                    mp4_without_frames = mp.AudioFileClip(path)
+                    mp4_without_frames.write_audiofile('themusic.mp3')
+                    mp4_without_frames.close()
                 await bot.edit_message_text(f"Видео отпправляется.\nОжидайте",self.message.from_user.id,a.message_id)
                 logger.debug("Downloaded!")
-                await send_from_user.send_vf('theaudio.mp3', self.message, str(self.size), self.quality, self.video_name, self.fps,self.video_type)
+                await send_from_user.send_vf('themusic.mp3', self.message, str(self.size), self.quality, self.video_name, self.fps,self.video_type)
                 await bot.delete_message(self.message.from_user.id,a.message_id)
                 os.remove(path)
-                os.remove('theaudio.mp3')
+                os.remove('themusic.mp3')
             elif str(file_id) == "Error":
                 await bot.send_message(self.message.from_user.id, 'Произошла ошибка!')
             else:
