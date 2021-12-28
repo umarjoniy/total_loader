@@ -73,12 +73,14 @@ async def load_ig_link(message: types.Message, state: FSMContext):
         await  bot.send_media_group(message.from_user.id,media)
         for qq in ies:
             qq.close()
+        await bot.send_message(message.from_user.id,caption,reply_markup=client_kb.kb_cancer)
         for i in os.listdir(path):
             os.remove(path+i)
         os.rmdir(path)
-        await state.finish()
     else:
         print('False')
+        await bot.send_message(settings.admins[0],"Произошла ошибка!!!")
+        await bot.send_message(message.from_user.id,"произошла ошибка",reply_markup=client_kb.kb_client)
         await state.finish()
 
 
