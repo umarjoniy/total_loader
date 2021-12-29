@@ -45,11 +45,11 @@ async def load_ig_link(message: types.Message, state: FSMContext):
     shortcode = match[0][1:len(match[0]) + 1]
     post = Post.from_shortcode(ig.context, shortcode)
     q = ig.download_post(post,str(message.from_user.id)+'_instagram')
+    path = str(message.from_user.id) + '_instagram/'
     if q==True:
         media = []
         ies=[]
         caption=''
-        path = str(message.from_user.id) + '_instagram/'
         for i in os.listdir(path):
             root,ext=os.path.splitext(path+i)
             if ext in ['.txt']:
@@ -81,6 +81,9 @@ async def load_ig_link(message: types.Message, state: FSMContext):
         print('False')
         await bot.send_message(settings.admins[0],"Произошла ошибка!!!")
         await bot.send_message(message.from_user.id,"произошла ошибка",reply_markup=client_kb.kb_client)
+        for i in os.listdir(path):
+            os.remove(path+i)
+        os.rmdir(path)
         await state.finish()
 
 
@@ -97,7 +100,7 @@ async def yt_url(message:types.Message,state:FSMContext):
         await message.reply("Видео либо плей-лист не найден")
     else:
         await state.finish()
-    await yt.send_video()
+    await yt.send_video_youtube()
 
 
 async def instagram_start(message: types.Message):
@@ -130,13 +133,16 @@ async def spotify(message:types.Message):
     await bot.send_message(message.from_user.id, "Пока у этой кнопки нет мозгов...\nНо я постараюсь вправить их туда:)")
 
 def register_handlers_keyboard(dp: Dispatcher):
+    dp.register_message_handler(cancel_handler, Text(equals=['Отмена'], ignore_case=True), state='*')
+    dp.register_message_handler(main_menu_handler, Text(equals=['Вернуться на главное меню'], ignore_case=True),state='*')
+    dp.register_message_handler(yt_format, state=FSMAdmin.yt_format)
+    dp.register_message_handler(load_ig_link, state=FSMAdmin.in_link)
+    dp.register_message_handler(yt_url, state=FSMAdmin.yt_link)
+
+
     dp.register_message_handler(youtube_start, Text(equals=['Youtube'], ignore_case=True), state=None)
     dp.register_message_handler(instagram_start, Text(equals=['Instagram'], ignore_case=True), state=None)
     dp.register_message_handler(tik_tok, Text(equals=['TikTok'], ignore_case=True), state=None)
     dp.register_message_handler(twitter, Text(equals=['Twitter'], ignore_case=True), state=None)
     dp.register_message_handler(spotify, Text(equals=['Spotify'], ignore_case=True), state=None)
-    dp.register_message_handler(cancel_handler,Text(equals=['Отмена'], ignore_case=True), state='*')
-    dp.register_message_handler(main_menu_handler,Text(equals=['Вернуться на главное меню'], ignore_case=True), state='*')
-    dp.register_message_handler(yt_format, state=FSMAdmin.yt_format)
-    dp.register_message_handler(load_ig_link, state=FSMAdmin.in_link)
-    dp.register_message_handler(yt_url, state=FSMAdmin.yt_link)
+

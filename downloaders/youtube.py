@@ -67,13 +67,18 @@ class Youtube:
                     mp4_without_frames = mp.AudioFileClip(path)
                     mp4_without_frames.write_audiofile('themusic.mp3')
                     mp4_without_frames.close()
-                await bot.edit_message_text(f"Видео отпправляется.\nОжидайте", self.message.from_user.id, a.message_id)
+                await bot.edit_message_text(f"Видео отправляется.\nОжидайте", self.message.from_user.id, a.message_id)
                 logger.debug("Downloaded!")
-                await send_from_user.send_vf('themusic.mp3', self.message, str(self.size), self.quality,
-                                             self.video_name, self.fps, self.video_type)
+                if self.video_type=="Аудио":
+                    await send_from_user.send_vf('themusic.mp3', self.message, str(self.size), self.quality,
+                                                self.video_name, self.fps, self.video_type)
+                else:
+                    await send_from_user.send_vf(path, self.message, str(self.size), self.quality,
+                                                 self.video_name, self.fps, self.video_type)
                 await bot.delete_message(self.message.from_user.id, a.message_id)
                 os.remove(path)
-                os.remove('themusic.mp3')
+                if self.video_type=="Аудио":
+                    os.remove('themusic.mp3')
             elif str(file_id) == "Error":
                 await bot.send_message(self.message.from_user.id, 'Произошла ошибка!')
             else:
@@ -94,6 +99,6 @@ class Youtube:
     async def youtube_playlist(message: types.Message, yt, state):
         pass
 
-    async def send_video(self):
+    async def send_video_youtube(self):
         if self.link_type == 'Video':
             await self.youtube_video()
