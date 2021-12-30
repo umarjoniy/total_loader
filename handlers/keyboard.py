@@ -83,7 +83,7 @@ async def load_ig_link(message: types.Message, state: FSMContext):
     else:
         print('False')
         await bot.send_message(settings.admins[0],"Произошла ошибка!!!")
-        await bot.send_message(message.from_user.id,"произошла ошибка",reply_markup=client_kb.kb_client)
+        await bot.send_message(message.from_user.id,"произошла ошибка",reply_markup=client_kb.kb_main_menu)
         for i in os.listdir(path):
             os.remove(path+i)
         os.rmdir(path)
