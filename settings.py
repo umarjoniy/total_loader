@@ -15,6 +15,6 @@ test_bot='5058648135:AAH39A6kIFKu3A7PlcqeRnG0wmvWtqy-sGU'
 #download_speed=int(network.download()/1024/1024)
 
 class FSMAdmin(StatesGroup):
-    yt_link = State()
+    yt_url = State()
     yt_format=State()
     in_link=State()

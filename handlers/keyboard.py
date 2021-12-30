@@ -25,7 +25,7 @@ async def yt_format(message: types.Message, state: FSMContext):
     if message.text in ['Аудио','Видео']:
         async with state.proxy() as data:
             data['yt_format']=message.text
-        await FSMAdmin.yt_link.set()
+        await FSMAdmin.yt_url.set()
         await bot.send_message(message.from_user.id,"Введите ссылку",reply_markup=client_kb.kb_cancer)
     else:
         await bot.send_message(message.from_user.id,"Выберите правильный формат",reply_markup=client_kb.kb_youtube)
@@ -67,8 +67,11 @@ async def load_ig_link(message: types.Message, state: FSMContext):
                 ies.append(file)
                 media.append(InputMediaVideo(file,caption=caption))
         print(media)
-        for i in media:
-            i.caption=caption
+        if len(media)>=2:
+            for i in media:
+                i.caption=caption
+        elif len(media)==1:
+            media[0].caption=''
             #один caption на всех
         await  bot.send_media_group(message.from_user.id,media)
         for qq in ies:
@@ -90,7 +93,6 @@ async def load_ig_link(message: types.Message, state: FSMContext):
 async def yt_url(message:types.Message,state:FSMContext):
     async with state.proxy() as data:
         data['yt_link'] = message.text
-        await FSMAdmin.yt_link.set()
         result=[]
     async with state.proxy() as data:
         for i in tuple(data.values()):
@@ -98,8 +100,6 @@ async def yt_url(message:types.Message,state:FSMContext):
     yt=downloaders.youtube.Youtube(result[1],result[0],message)
     if yt.is_true==0:
         await message.reply("Видео либо плей-лист не найден")
-    else:
-        await state.finish()
     await yt.send_video_youtube()
 
 
@@ -137,7 +137,7 @@ def register_handlers_keyboard(dp: Dispatcher):
     dp.register_message_handler(main_menu_handler, Text(equals=['Вернуться на главное меню'], ignore_case=True),state='*')
     dp.register_message_handler(yt_format, state=FSMAdmin.yt_format)
     dp.register_message_handler(load_ig_link, state=FSMAdmin.in_link)
-    dp.register_message_handler(yt_url, state=FSMAdmin.yt_link)
+    dp.register_message_handler(yt_url, state=FSMAdmin.yt_url)
 
 
     dp.register_message_handler(youtube_start, Text(equals=['Youtube'], ignore_case=True), state=None)
