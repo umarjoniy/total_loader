@@ -62,7 +62,7 @@ async def load_ig_link(message: types.Message, state: FSMContext):
                 file=open(path+i,'rb')
                 ies.append(file)
                 media.append(InputMediaPhoto(file,caption=caption))
-            elif (path + i)[len(path+i)-3:] in ['.mp4']:
+            elif ext in ['.mp4']:
                 file=open(path + i, 'rb')
                 ies.append(file)
                 media.append(InputMediaVideo(file,caption=caption))
