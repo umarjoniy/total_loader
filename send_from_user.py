@@ -29,4 +29,4 @@ async def send_vf(path, message, size, quality, video_name, fps,type):
                                caption=str('#'.join([str(message.from_user.id), size, quality, video_name, fps,type])))
     elif work_mode == "DEBUG":
         await client.send_file('@Tot_load_test_bot', path,voice_note=True,
-                               caption=str('#'.join([str(message.from_user.id), size, quality, video_name, fps])))
+                               caption=str('#'.join([str(message.from_user.id), size, quality, video_name, fps,type])))

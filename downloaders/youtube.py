@@ -16,27 +16,36 @@ class Youtube:
         self.quality = None
         self.video_name = None
         self.fps = None
-        self.video_type = type
-        self.link_type = None
-        self.is_true = None
-        self.first_link = link
-        self.link = None
+        self.video_type = type#видео надо доставить в ввиде аудио либо видео
+        self.link_type = None#т.е first_link эти url видео или плэй листа
+        self.is_true = None#видео вообще существует?
+        self.video_link = None#нужен во время скачивания видео
+        #-------------------------------------------------------изменяю
+        self.first_link = link #нужен для проверки типа url
+        self.pl_link=None#url плэй листа, что бы не потерять
         self.message = message
         try:
             YouTube(self.first_link)
             self.link_type = 'Video'
+            self.video_link=link
+            logger.debug("Video")
         except:
             try:
                 Playlist(self.first_link)
                 self.link_type = 'PlayList'
+                self.pl_link=link
+                logger.debug("PlayList")
             except:
                 self.is_true = 0
 
     @logger.catch()
-    async def youtube_video(self):
+    async def youtube_video(self,link=None):
+        logger.info(link)
+        if link!=None:
+            self.video_link=link
         video = None
-        logger.debug(self.first_link)
-        yt = YouTube(self.first_link)
+        logger.debug(self.video_link)
+        yt = YouTube(self.video_link)
         if self.video_type == "Аудио":
             video = yt.streams.get_audio_only('mp4')
         elif self.video_type == "Видео":
@@ -60,14 +69,13 @@ class Youtube:
             logger.debug(f"File id: {file_id}")
             if str(file_id) == '0':
                 logger.debug("Downloading youtube video")
-                a = await bot.send_message(self.message.from_user.id, "Видео(аудио) скачивается на сервер...")
+                a = await bot.send_message(self.message.from_user.id, f"{self.video_type} скачивается на сервер...")
                 path = video.download()
-                logger.debug(self.video_type)
                 if self.video_type == "Аудио":
                     mp4_without_frames = mp.AudioFileClip(path)
                     mp4_without_frames.write_audiofile('themusic.mp3')
                     mp4_without_frames.close()
-                await bot.edit_message_text(f"Видео отправляется.\nОжидайте", self.message.from_user.id, a.message_id)
+                await bot.edit_message_text(f"{self.video_type} отправляется.\nОжидайте", self.message.from_user.id, a.message_id)
                 logger.debug("Downloaded!")
                 if self.video_type=="Аудио":
                     await send_from_user.send_vf('themusic.mp3', self.message, str(self.size), self.quality,
@@ -86,19 +94,24 @@ class Youtube:
                     if self.video_type == "Видео":
                         await bot.send_video(self.message.from_user.id, file_id[0], caption=self.video_name)
                     elif self.video_type == "Аудио":
-                        await bot.send_audio(self.message.from_user.id, file_id[0], caption=self.video_name)
+                        await bot.send_voice(self.message.from_user.id, file_id[0], caption=self.video_name)
 
                 except aiogram.utils.exceptions.WrongFileIdentifier:
                     logger.info(f"File id {file_id[0]} is old?")
                     youtube_videos_delete(self.video_name, self.quality, self.fps)
-                    # await youtube(message,url)
+                    await self.youtube_video()
         else:
             await bot.send_message(self.message.from_user.id, 'Размер видео больше чем 370МБ(техническое ограничение)')
             return "not Found"
 
-    async def youtube_playlist(message: types.Message, yt, state):
-        pass
+    async def youtube_playlist(self):
+        pl=Playlist(self.pl_link)
+        for i in pl.video_urls:
+            await self.youtube_video(i)
+
 
     async def send_video_youtube(self):
         if self.link_type == 'Video':
             await self.youtube_video()
+        elif self.link_type=='PlayList':
+            await self.youtube_playlist()
