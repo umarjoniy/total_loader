@@ -1,5 +1,7 @@
 import os
 
+import settings
+
 import aiogram
 import moviepy.editor as mp
 from aiogram import types
@@ -24,6 +26,7 @@ class Youtube:
         self.first_link = link #нужен для проверки типа url
         self.pl_link=None#url плэй листа, что бы не потерять
         self.message = message
+        self.continue_downloading=1#0# нужен для кнопки отмена при скачивании плэй- листа к примеру посло тего, как скачал одно видео и хочешь остановаить
         try:
             YouTube(self.first_link)
             self.link_type = 'Video'
@@ -106,11 +109,14 @@ class Youtube:
 
     async def youtube_playlist(self):
         pl=Playlist(self.pl_link)
+        logger.debug(settings.state_of)
         for i in pl.video_urls:
-            await self.youtube_video(i)
+            if settings.state_of == 'YouTube':
+                await self.youtube_video(i)
 
 
     async def send_video_youtube(self):
+        logger.debug(self.link_type)
         if self.link_type == 'Video':
             await self.youtube_video()
         elif self.link_type=='PlayList':
