@@ -3,7 +3,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 logger.add('debug.log', format="{time} {level} {message}", level='DEBUG', rotation='15MB', compression='zip')
 from speedtest import Speedtest
 network=Speedtest(secure=True)
-admins=[413431533]#1106300203
+admins=[413431533,1106300203]
 instagram_auth_file_name='413431533'
 video_get_accaunt=[2106956112,413431533]
 debug_accaunts={'entity': "Project",'api_hash':'2ce977d528d6020fc69177a5b7de0f53','api_id':3775421,'phone':'+998909423844'}
