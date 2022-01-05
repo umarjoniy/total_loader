@@ -1,6 +1,10 @@
 import os
+
+import aiogram
 from speedtest import Speedtest
 from aiogram import types, Dispatcher
+
+from create_bot import bot
 from data_base import work_with_db
 from settings import admins , logger
 
@@ -34,6 +38,21 @@ async def get_users(message:types.Message):
         a=work_with_db.get_users()
         if a!='Error':
             await message.reply(a)
+        else:
+            await message.reply("Произошла ошибка")
+
+async def send_all(message:types.Message):
+    if message.from_user.id in admins:
+        logger.debug(f"Getting command {message.text} from user {message.from_user.id})")
+        a=work_with_db.get_users()
+        if a!='Error':
+            for i in a:
+                try:
+                    await bot.send_message(i[0],message.text.replace('/send_all ',''))
+                    logger.info(f"Sended message {message.text.replace('/send_all ', '')} to {i[0]}")
+                except aiogram.utils.exceptions.ChatNotFound:
+                    logger.warning(f"Can't send message {message.text.replace('/send_all ', '')} to {i[0]}")
+
         else:
             await message.reply("Произошла ошибка")
 
@@ -95,6 +114,7 @@ def register_handlers_admin(dp: Dispatcher):
     dp.register_message_handler(get_log,commands=["get_log"],state=None)
     dp.register_message_handler(get_speed,commands=["get_speed"],state=None)
     dp.register_message_handler(get_users, commands=["get_users"], state=None)
+    dp.register_message_handler(send_all, commands=["send_all"], state=None)
     # dp.register_message_handler(cancel_handler, state="*", commands=['отмена'])
     # dp.register_message_handler(cancel_handler, Text(equals=['отмена'], ignore_case=True), state="*")
     # dp.register_message_handler(cm_start, commands=["Загрузить"], state=None)
