@@ -16,7 +16,6 @@ async def commands_start(message: types.Message):
             pass
         elif a == 'No':
             work_with_db.add_user(message.from_user.id, message.from_user.username)
-
     except Exception as e:
         print(e)
         await  message.reply("Общение с ботом ток в ЛС!")
@@ -25,9 +24,8 @@ async def commands_start(message: types.Message):
 @logger.catch()
 async def get_file(message: types.Message):
     logger.info(message.from_user.id)
-    logger.info(video_get_accaunt)
     if message.from_user.id in video_get_accaunt:
-        if settings.state_of=='YouTube':
+        if settings.state_of_keyboard== 'YouTube':
             x = message.caption.split('#')
             logger.debug(f"Got datas:{x}")
             if x[5]=="Аудио":

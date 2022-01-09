@@ -109,9 +109,9 @@ class Youtube:
 
     async def youtube_playlist(self):
         pl=Playlist(self.pl_link)
-        logger.debug(settings.state_of)
+        logger.debug(settings.state_of_keyboard)
         for i in pl.video_urls:
-            if settings.state_of == 'YouTube':
+            if settings.state_of_keyboard == 'YouTube':
                 await self.youtube_video(i)
 
 

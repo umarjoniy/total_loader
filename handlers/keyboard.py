@@ -25,7 +25,7 @@ ig.load_session_from_file('jackis153', '413431533')
 async def youtube_start(message: types.Message):
     await bot.send_message(message.from_user.id, "В каком формате нужно скачать?", reply_markup=client_kb.kb_youtube)
     await FSMAdmin.yt_format.set()
-    settings.state_of = 'YouTube'
+    settings.state_of_keyboard = 'YouTube'
 
 
 async def yt_format(message: types.Message, state: FSMContext):
@@ -34,7 +34,7 @@ async def yt_format(message: types.Message, state: FSMContext):
             data['yt_format'] = message.text
         await FSMAdmin.yt_url.set()
         await bot.send_message(message.from_user.id, "Введите ссылку на видео или плэй-лист", reply_markup=client_kb.kb_cancer)
-        settings.state_of = 'YouTube'
+        settings.state_of_keyboard = 'YouTube'
     else:
         await bot.send_message(message.from_user.id, "Выберите правильный формат", reply_markup=client_kb.kb_youtube)
 
@@ -58,7 +58,7 @@ async def yt_url(message: types.Message, state: FSMContext):
 @logger.catch()
 async def load_ig_link(message: types.Message, state: FSMContext):
     match = re.search(r'/[\w-]{11}', message.text)
-    settings.state_of = 'Instagram'
+    settings.state_of_keyboard = 'Instagram'
     shortcode = match[0][1:len(match[0]) + 1]
     post = Post.from_shortcode(ig.context, shortcode)
     q = ig.download_post(post, str(message.from_user.id) + '_instagram')
@@ -110,7 +110,7 @@ async def load_ig_link(message: types.Message, state: FSMContext):
 async def instagram_start(message: types.Message):
     ig = instaloader.Instaloader()
     ig.load_session_from_file('jackis153', settings.instagram_auth_file_name)
-    settings.state_of = 'Instagram'
+    settings.state_of_keyboard = 'Instagram'
     await bot.send_message(message.from_user.id, "Введите ссылку на пост, который вы хотите скачать",reply_markup=client_kb.kb_client)
     await FSMAdmin.in_link.set()
 
@@ -125,13 +125,13 @@ async def twitter(message: types.Message):
 
 async def cancel_handler(message: types.Message, state: FSMContext):
     await message.reply("Отменено", reply_markup=client_kb.kb_client)
-    settings.state_of = None
+    settings.state_of_keyboard = None
     await state.finish()
 
 
 async def main_menu_handler(message: types.Message, state: FSMContext):
     await message.reply('Переход на главное меню.', reply_markup=client_kb.kb_client)
-    settings.state_of = None
+    settings.state_of_keyboard = None
     await state.finish()
 
 
