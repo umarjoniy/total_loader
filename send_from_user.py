@@ -1,6 +1,7 @@
 import mimetypes
 
 import create_bot
+import settings
 
 client=None
 import telethon
@@ -19,17 +20,37 @@ def activate_acc(message:types.Message=None):
         client = TelegramClient(debug_accaunts.get('entity'), debug_accaunts.get('api_id'),
                                 debug_accaunts.get('api_hash'))
     client.connect()
+
     if not client.is_user_authorized():
         if work_mode == "SERVER":
             client.send_code_request(server_accaunts.get('phone'))
+            create_bot.bot_help.send_message(settings.admins[0],"Срочно введи код из аккаунта 'принималы', если ты имеешь доступ, или не пиши мне ничего, чтобы не сломать ничего!")
+            if message==None:return 0
             client.sign_in(server_accaunts.get('phone'),message.text,password='Umarjoniy2006')
+            try:
+                client.start(server_accaunts.get('phone'),message.text)
+            except telethon.errors.rpcerrorlist.AuthKeyDuplicatedError:
+                os.remove('video_helper.session')
+                activate_acc()
         elif work_mode == 'DEBUG':
-            client.send_code_request(debug_accaunts.get('phone'))
-            client.sign_in(debug_accaunts.get('phone'), input('Enter code: '))
+            client.send_code_request(server_accaunts.get('phone'))
+            #await create_bot.bot_help.send_message(settings.admins[0],
+            #                                 "Срочно введи код из аккаунта 'принималы', если ты имеешь доступ, или не пиши мне ничего, чтобы не сломать ничего!")
+            if message == None: return 0
+            client.sign_in(debug_accaunts.get('phone'), message.text, password='Umarj0niy2oo6')
+            try:
+                client.start(debug_accaunts.get('phone'), message.text)
+            except telethon.errors.rpcerrorlist.AuthKeyDuplicatedError:
+                os.remove('Project.session')
+                activate_acc()
     try:
         client.start()
     except telethon.errors.rpcerrorlist.AuthKeyDuplicatedError:
         os.remove('video_helper.session')
+        try:
+            os.remove('Project.session')
+        except:
+            pass
         activate_acc()
 
 activate_acc()

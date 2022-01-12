@@ -13,8 +13,9 @@ if work_mode == "SERVER":
 
 
 elif work_mode == "DEBUG":
-    from settings import test_bot
+    from settings import test_bot,help_bot
     bot = Bot(test_bot)
+    bot_help = Bot(help_bot)
 
 dp = Dispatcher(bot, storage=storage)
 dp_help=Dispatcher(bot_help, storage=storage)
