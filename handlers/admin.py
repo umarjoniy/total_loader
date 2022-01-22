@@ -1,7 +1,6 @@
 import os
 
 import aiogram
-from speedtest import Speedtest
 from aiogram import types, Dispatcher
 
 import send_from_user
@@ -24,14 +23,6 @@ async def get_log(message:types.Message):
             logger.debug(f"File: {i}")
         with open('debug.log','rb') as f:
             await message.reply_document(f)
-
-async def get_speed(message:types.Message):
-    if message.from_user.id in admins:
-        logger.debug(f"Getting command {message.text} from user {message.from_user.id})")
-        network=Speedtest(secure=True)
-        download_speed=int(network.download()/1024/1024/8)
-        upload_speed=int(network.upload()/1024/1024/8)
-        await message.reply(f'Download: {download_speed}\nUpload: {upload_speed}')
 
 async def get_users(message:types.Message):
     if message.from_user.id in admins:
@@ -115,7 +106,6 @@ async def send_all(message:types.Message):
 
 def register_handlers_admin(dp: Dispatcher):
     dp.register_message_handler(get_log,commands=["get_log"],state=None)
-    dp.register_message_handler(get_speed,commands=["get_speed"],state=None)
     dp.register_message_handler(get_users, commands=["get_users"], state=None)
     dp.register_message_handler(send_all, commands=["send_all"], state=None)
     dp_help.register_message_handler(send_from_user.activate_acc)
