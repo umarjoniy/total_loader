@@ -1,5 +1,7 @@
+/venv/
 cenz.json
 to_json.py
-/.idea/
+/.idea/*
 debug.log
 Project.session
+
