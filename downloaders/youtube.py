@@ -43,12 +43,12 @@ class Youtube:
 
     @logger.catch()
     async def youtube_video(self,link=None):
-        logger.info(link)
         if link!=None:
             self.video_link=link
         video = None
         logger.debug(self.video_link)
         yt = YouTube(self.video_link)
+        print(yt.thumbnail_url)
         if self.video_type == "Аудио":
             video = yt.streams.get_audio_only('mp4')
         elif self.video_type == "Видео":
