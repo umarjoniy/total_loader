@@ -5,7 +5,6 @@ import settings
 from settings import FSMAdmin
 import instaloader
 import downloaders
-import pytube
 from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
