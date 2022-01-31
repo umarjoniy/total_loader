@@ -108,7 +108,6 @@ def register_handlers_admin(dp: Dispatcher):
     dp.register_message_handler(get_log,commands=["get_log"],state=None)
     dp.register_message_handler(get_users, commands=["get_users"], state=None)
     dp.register_message_handler(send_all, commands=["send_all"], state=None)
-    dp_help.register_message_handler(send_from_user.activate_acc)
     # dp.register_message_handler(cancel_handler, state="*", commands=['отмена'])
     # dp.register_message_handler(cancel_handler, Text(equals=['отмена'], ignore_case=True), state="*")
     # dp.register_message_handler(cm_start, commands=["Загрузить"], state=None)

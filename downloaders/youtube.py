@@ -43,6 +43,7 @@ class Youtube:
 
     @logger.catch()
     async def youtube_video(self,link=None):
+        global path
         if link!=None:
             self.video_link=link
         video = None
@@ -73,29 +74,31 @@ class Youtube:
             if str(file_id) == '0':
                 logger.debug("Downloading youtube video")
                 a = await bot.send_message(self.message.from_user.id, f"{self.video_type} скачивается на сервер...")
-                path = video.download()
-                if self.video_type == "Аудио":
-                    mp4_without_frames = mp.AudioFileClip(path)
-                    mp4_without_frames.write_audiofile('themusic.mp3')
-                    mp4_without_frames.close()
-                await bot.edit_message_text(f"{self.video_type} отправляется.\nОжидайте", self.message.from_user.id, a.message_id)
-                logger.debug("Downloaded!")
-                if self.video_type=="Аудио":
-                    await send_from_user.send_vf('themusic.mp3', self.message, str(self.size), self.quality,
-                                                self.video_name, self.fps, self.video_type)
-                else:
-                    await send_from_user.send_vf(path, self.message, str(self.size), self.quality,
-                                                 self.video_name, self.fps, self.video_type)
-                await bot.delete_message(self.message.from_user.id, a.message_id)
-                os.remove(path)
-                if self.video_type=="Аудио":
-                    os.remove('themusic.mp3')
+                try:
+                    path = video.download()
+                    if self.video_type == "Аудио":
+                        mp4_without_frames = mp.AudioFileClip(path)
+                        mp4_without_frames.write_audiofile('themusic.mp3')
+                        mp4_without_frames.close()
+                    await bot.edit_message_text(f"{self.video_type} отправляется.\nОжидайте", self.message.from_user.id, a.message_id)
+                    logger.debug("Downloaded!")
+                    if self.video_type=="Аудио":
+                        await send_from_user.send_vf('themusic.mp3', self.message, str(self.size), self.quality,
+                                                                self.video_name, self.fps, self.video_type,yt.thumbnail_url)
+                    else:
+                        await send_from_user.send_vf(path, self.message, str(self.size), self.quality,
+                                                                self.video_name, self.fps, self.video_type,yt.thumbnail_url)
+                    await bot.delete_message(self.message.from_user.id, a.message_id)
+                finally:
+                    os.remove(path)
+                    if self.video_type=="Аудио":
+                        os.remove('themusic.mp3')
             elif str(file_id) == "Error":
                 await bot.send_message(self.message.from_user.id, 'Произошла ошибка!')
             else:
                 try:
                     if self.video_type == "Видео":
-                        await bot.send_video(self.message.from_user.id, file_id[0], caption=self.video_name)
+                        await bot.send_video(self.message.from_user.id, file_id[0],caption=self.video_name)
                     elif self.video_type == "Аудио":
                         await bot.send_voice(self.message.from_user.id, file_id[0], caption=self.video_name)
 
