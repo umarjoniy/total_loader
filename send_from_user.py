@@ -23,7 +23,7 @@ async def activate_acc(message: types.Message = None):
             except telethon.errors.rpcerrorlist.SessionPasswordNeededError:
                 await client.sign_in(password='Umarjoniy2006')
         elif work_mode == 'DEBUG':
-            hash=client.send_code_request(debug_accaunts.get('phone'))
+            await client.send_code_request(debug_accaunts.get('phone'))
             print(hash)
             code=int(input("Введите код:\n"))
             try:
