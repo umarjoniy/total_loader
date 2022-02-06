@@ -22,9 +22,10 @@ ig.load_session_from_file('jackis153', '413431533')
 
 
 async def youtube_start(message: types.Message):
-    await bot.send_message(message.from_user.id, "В каком формате нужно скачать?", reply_markup=client_kb.kb_youtube)
-    await FSMAdmin.yt_format.set()
-    settings.state_of_keyboard = 'YouTube'
+    await bot.send_message(message.from_user.id,"Этот разред дорабатывается\nИзвениемся за неудобства.")
+    #await bot.send_message(message.from_user.id, "В каком формате нужно скачать?", reply_markup=client_kb.kb_youtube)
+    #await FSMAdmin.yt_format.set()
+    #settings.state_of_keyboard = 'YouTube'
 
 
 async def yt_format(message: types.Message, state: FSMContext):
